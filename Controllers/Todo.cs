@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Todo.DTOs;
 using Todo.Services;
@@ -9,45 +8,38 @@ namespace Todo.Controllers;
 public class TodosController : ControllerBase
 {
     private readonly ITodoService _todoService;
-    private readonly IMapper _mapper;
 
-    public TodosController(ITodoService todoService, IMapper mapper)
+    public TodosController(ITodoService todoService)
     {
         _todoService = todoService;
-        _mapper = mapper;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Models.Todo>>> GetTodos()
+    public async Task<ActionResult<IEnumerable<TodoDto>>> GetTodos()
     {
         var todos = await _todoService.GetAllAsync();
-        var dtos = _mapper.Map<List<TodoDto>>(todos);
-        return Ok(dtos);
+        return Ok(todos);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Models.Todo>> GetTodo(int id)
+    public async Task<ActionResult<TodoDto>> GetTodo(int id)
     {
         var todo = await _todoService.GetByIdAsync(id);
-        var dto = _mapper.Map<TodoDto>(todo);
-        return todo == null ? NotFound() : Ok(dto);
+        return todo == null ? NotFound() : Ok(todo);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Models.Todo>> PostTodo(Models.Todo todo)
+    public async Task<ActionResult<TodoDto>> PostTodo(Models.Todo todo)
     {
         var created = await _todoService.CreateAsync(todo);
-        var dto = _mapper.Map<TodoDto>(created);
-        return CreatedAtAction(nameof(GetTodo), new { id = created.Id }, dto);
+        return CreatedAtAction(nameof(GetTodo), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodo(int id, Models.Todo todo)
+    public async Task<ActionResult<TodoDto>> PutTodo(int id, Models.Todo todo)
     {
         var updated = await _todoService.UpdateAsync(id, todo);
-        todo = await _todoService.GetByIdAsync(id);
-        var dto = _mapper.Map<TodoDto>(todo);
-        return updated ? Ok(dto) : NotFound();
+        return updated != null ? Ok(todo) : NotFound();
     }
 
     [HttpDelete("{id}")]
