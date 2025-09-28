@@ -19,7 +19,6 @@ builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddAutoMapper(typeof(TodoProfile));
 
 // TODO: temporary workaround to allow CORS
-// ✅ Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -34,7 +33,7 @@ builder.Services.AddCors(options =>
 // Build
 var app = builder.Build();
 
-// ✅ Enable CORS middleware
+// Enable CORS middleware
 app.UseCors();
 
 // Seed data
