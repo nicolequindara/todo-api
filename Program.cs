@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Todo.Mapping;
 using Todo.Models;
 using Todo.Services;
 
@@ -13,6 +14,9 @@ builder.Services.AddControllers();
 
 // Service
 builder.Services.AddScoped<ITodoService, TodoService>();
+
+// Register AutoMapper and scan for Profiles
+builder.Services.AddAutoMapper(typeof(TodoProfile));
 
 // TODO: temporary workaround to allow CORS
 // ✅ Add CORS

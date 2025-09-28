@@ -1,4 +1,6 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Todo.DTOs;
 using Todo.Services;
 namespace Todo.Controllers;
 
@@ -7,31 +9,36 @@ namespace Todo.Controllers;
 public class TodosController : ControllerBase
 {
     private readonly ITodoService _todoService;
+    private readonly IMapper _mapper;
 
-    public TodosController(ITodoService todoService)
+    public TodosController(ITodoService todoService, IMapper mapper)
     {
         _todoService = todoService;
+        _mapper = mapper;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Models.Todo>>> GetTodos()
     {
         var todos = await _todoService.GetAllAsync();
-        return Ok(todos);
+        var dtos = _mapper.Map<List<TodoDto>>(todos);
+        return Ok(dtos);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Models.Todo>> GetTodo(int id)
     {
         var todo = await _todoService.GetByIdAsync(id);
-        return todo == null ? NotFound() : Ok(todo);
+        var dto = _mapper.Map<TodoDto>(todo);
+        return todo == null ? NotFound() : Ok(dto);
     }
 
     [HttpPost]
     public async Task<ActionResult<Models.Todo>> PostTodo(Models.Todo todo)
     {
         var created = await _todoService.CreateAsync(todo);
-        return CreatedAtAction(nameof(GetTodo), new { id = created.Id }, created);
+        var dto = _mapper.Map<TodoDto>(created);
+        return CreatedAtAction(nameof(GetTodo), new { id = created.Id }, dto);
     }
 
     [HttpPut("{id}")]
@@ -39,7 +46,8 @@ public class TodosController : ControllerBase
     {
         var updated = await _todoService.UpdateAsync(id, todo);
         todo = await _todoService.GetByIdAsync(id);
-        return updated ? Ok(todo) : NotFound();
+        var dto = _mapper.Map<TodoDto>(todo);
+        return updated ? Ok(dto) : NotFound();
     }
 
     [HttpDelete("{id}")]
